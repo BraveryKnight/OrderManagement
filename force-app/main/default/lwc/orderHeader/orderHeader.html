@@ -1,0 +1,95 @@
+<template>
+    <lightning-card>
+        <div class="slds-grid slds-grid_vertical-align-center">
+            <p class="slds-text-heading_medium slds-m-horizontal_medium">Account: {accName}</p>
+            <p class="slds-text-heading_medium">Phone: {accNumber}</p>
+            <div class="slds-col_bump-left">
+                <lightning-button if:true={isManager}
+                    variant="brand"
+                    label="Create Product"
+                    class="slds-m-horizontal_medium"
+                    onclick={createProduct}>
+                </lightning-button>
+                <lightning-button 
+                    variant="brand"
+                    label="Cart"
+                    class="slds-m-horizontal_medium"
+                    onclick={openCart}>
+                </lightning-button>
+            </div>
+        </div>
+    </lightning-card>
+    <div class="slds-grid slds-wrap">
+        <div class="slds-size_1-of-4">
+            <lightning-card>
+                <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center slds-m-around_small">
+                    <p class="slds-text-heading_medium slds-col">Filter</p>
+                    <lightning-button
+                        variant="brand-outline"
+                        label="Aply"
+                        class="slds-col"
+                        onclick={aplyFilters}>
+                    </lightning-button>
+                </div>
+                <div class="slds-m-horizontal_small slds-border_top slds-border_left slds-border_right">
+                    <lightning-datatable
+                        data-recid="typeTable"
+                        data={typePicklistData}
+                        columns={typeColumn}
+                        key-field="Id">
+                    </lightning-datatable>
+                </div>
+                <div class="slds-m-horizontal_small slds-border_left slds-border_right slds-border_bottom">
+                    <lightning-datatable
+                        data-recid="familyTable"
+                        key-field="id"
+                        data={familyPicklistData}
+                        columns={familyColumn}>
+                    </lightning-datatable>
+                </div>
+            </lightning-card>
+        </div>
+        <div class="slds-size_3-of-4">
+            <lightning-card title="Products">
+                <div class="slds-card__body slds-card__body_inner">
+                    <template if:true={products.data}>
+                        <lightning-input type="search"
+                            onchange={handleSearchTermChange}
+                            variant="label-hidden"
+                            class="slds-var-m-bottom_small"
+                            label="Search"
+                            placeholder="Search for products"
+                            value={searchTerm}>
+                        </lightning-input>
+                        <lightning-layout multiple-rows="true" pull-to-boundary="small">
+                            <template for:each={products.data} for:item="product">
+                                <lightning-layout-item key={product.Id} size="4" class="slds-var-p-around_xxx-small">
+                                    <c-product-tile product={product} onshowdetails={showDetails} onaddproducttocart={addProductToCart}></c-product-tile>
+                                </lightning-layout-item>
+                            </template>
+                        </lightning-layout>
+                        <template if:false={hasResults}>
+                            <div class="slds-align_absolute-center slds-var-m-vertical_small">
+                                No product was found...
+                            </div>
+                        </template>
+                    </template>
+                    <template if:true={products.error}>
+                        <div class="slds-text-color_error">
+                            An error occurred while loading product list
+                        </div>
+                    </template>
+                </div>
+            </lightning-card>
+        </div>
+    </div>
+    <div if:true={isCartOpen}>
+        <c-product-cart products={productCart} oncartclose={handleClose} accid={accId}></c-product-cart>
+    </div>
+    <div if:true={isNewProductOpen}>
+        <c-create-product-modal onproductclose={closeProductModal}></c-create-product-modal>
+    </div> 
+    <div if:true={isDetailsShown}>
+        <c-product-details product={currentProduct} onclosedetails={closeDetails}></c-product-details>
+    </div> 
+</template>
